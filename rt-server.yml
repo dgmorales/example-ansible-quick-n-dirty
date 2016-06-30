@@ -1,0 +1,48 @@
+---
+- name: Install Best Practical RT
+  hosts: all
+  vars_prompt:
+    - name: "prompt_mysql_root_password"
+      prompt: "Enter MySQL root password"
+      private: yes
+    - name: "prompt_mysql_bind_address"
+      prompt: "Enter MySQL bind Address"
+      default: "127.0.0.1"
+      private: no
+    - name: "prompt_rt_version"
+      prompt: "Which version to download?"
+      default: "4.4.0"
+      private: no
+  vars:
+    rt_source_unpacked_dir: "{{ rt_source_dest }}/rt-{{ prompt_rt_version }}"
+    rt_source_pkg: rt-{{ prompt_rt_version }}.tar.gz
+    rt_source_url: https://download.bestpractical.com/pub/rt/release/{{ rt_source_pkg }}
+    rt_source_dest: /usr/local/src
+    rt_install_prefix: /opt/rt4
+    rt_webdomain: rt.example.com.br
+    rt_webpath: ""
+    rt_webport: 8080
+    rt_comment_address: rt@{{ rt_webdomain }}
+    rt_correspond_address: rt@{{ rt_webdomain }}
+    # OBS: quotes are necessary when the variable is used alone like below
+    rt_rtname: "{{ rt_webdomain }}"
+    rt_dbuser: rt_user
+    rt_dbpass: d183ucZj9rth.98
+    rt_dbname: rt4
+    rt_fcgi_port: 9000
+  pre_tasks:
+    - name: apt-get update
+      tags: apt-get-update
+      apt: update_cache=yes
+  roles:
+    - { role: Rackspace_Automation.mysql,
+        mysql_root_password: "{{ prompt_mysql_root_password }}",
+        mysql_bind_address: "{{ prompt_mysql_bind_address }}" }
+    - { role: geerlingguy.nginx,
+        nginx_remove_default_vhost: true}
+  tasks:
+    - include: rt.yml
+    - include: rt-nginx-config.yml
+  handlers:
+    - name: restart rt-fcgi
+      service: name=rt-fcgi state=restarted

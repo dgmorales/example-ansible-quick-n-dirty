@@ -1,0 +1,30 @@
+# We are here pretty much direct following nginx instructions at
+# https://docs.bestpractical.com/rt/4.4.0/web_deployment.html
+#
+# Please note that this setup is very simple and might not be adequate for your needs.
+#
+# - RT runs with nginx as FCGI
+# - spawn-fcgi starts the rt-server.fcgi for us
+# - we start spawn-fcgi from upstart
+#
+- name: Install spawn-fcgi
+  apt: name=spawn-fcgi
+- name: Install Upstart rt-fcgi service config file
+  tags: rt-config
+  template: src=files/etc/default/rt-fcgi.j2 dest=/etc/default/rt-fcgi
+  notify: restart rt-fcgi
+- name: Install Upstart rt-fcgi service
+  copy: src=files/etc/init/rt-fcgi.conf dest=/etc/init/rt-fcgi.conf
+  notify: restart rt-fcgi
+- name: Start rt-fcgi service
+  service: name=rt-fcgi state=started
+
+- name: Install Nginx RT vhost config
+  tags: rt-config
+  template: src=files/etc/nginx/rt.j2 dest=/etc/nginx/sites-available/rt
+  notify: reload nginx
+- name: Enable Nginx RT vhost config
+  file: state=link src=/etc/nginx/sites-available/rt dest=/etc/nginx/sites-enabled/rt
+  notify: reload nginx
+- name: Start nginx service
+  service: name=nginx state=started

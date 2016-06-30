@@ -1,0 +1,46 @@
+# Any configuration directives you include  here will override
+# RT's default configuration file, RT_Config.pm
+#
+# To include a directive here, just copy the equivalent statement
+# from RT_Config.pm and change the value. We've included a single
+# sample value below.
+#
+# This file is actually a perl module, so you can include valid
+# perl code, as well.
+#
+# The converse is also true, if this file isn't valid perl, you're
+# going to run into trouble. To check your SiteConfig file, use
+# this comamnd:
+#
+#   perl -c /path/to/your/etc/RT_SiteConfig.pm
+
+Set($LogoLinkURL, "http://www.example.com.br");
+Set($LogoAltText, "Example Organization");
+Set($CommentAddress , '{{ rt_comment_address }}');
+Set($CorrespondAddress , '{{ rt_correspond_address }}');
+Set($Organization , "ExampleOrg");
+Set($Timezone , 'America/Sao_Paulo');
+Set($WebDomain, '{{ rt_webdomain }}' );
+Set($WebPath , "{{ rt_webpath }}");
+Set($WebPort, {{ rt_webport }});
+Set($rtname, '{{ rt_rtname }}');
+Set($UsernameFormat, 'concise');
+#Set($LogToSyslog    , 'debug');
+Set($LogToSyslog    , 'notice');
+Set($DatabaseType , 'mysql');
+Set($DatabasePort , '');
+Set($DatabaseUser , '{{ rt_dbuser }}');
+Set($DatabasePassword , '{{ rt_dbpass }}');
+Set($DatabaseName , '{{ rt_dbname }}');
+Set($CanonicalizeRedirectURLs, 1);
+
+my $port = RT->Config->Get('WebPort');
+Set($WebBaseURL,
+    ($port == 443? 'https': 'http') .'://'
+    . RT->Config->Get('WebDomain')
+    . ($port != 80 && $port != 443? ":$port" : '')
+);
+
+Set($WebURL, RT->Config->Get('WebBaseURL') . RT->Config->Get('WebPath') . "/");
+
+1;

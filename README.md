@@ -36,6 +36,20 @@
    approach for real, we could at least make a custom python module to enable a cleaner code.
    But hey, use ansible vault or some lookup on a remote shared secret vault.
 
+# Better ways
+
+- Creating packages is easy with jordansissel/fpm. Avoid doing configure/make/make-install if
+  possible.
+
+- Place vars in groups_vars, preferably. If they are really host-bound, in the inventory itself
+  then.
+
+- For reusability, prefer creating roles, instead of including files.
+
+- Use Ansible Vault for secrets (you can try it here), or some remote shared secret storage
+  like Hashicorp's Vault, acessing it though a lookup plugin like hashi_vault or
+  https://github.com/jhaals/ansible-vault.
+
 # Examples
 
 Using this vagrant repo, you can try it like this below:
@@ -53,4 +67,14 @@ that too, of course)
  ansible-playbook --sudo rt-server.yml \
    -i .vagrant/provisioners/ansible/inventory/vagrant_ansible_inventory \
    --extra-vars "prompt_mysql_bind_address=127.0.0.1 prompt_rt_version=4.4.0"
+```
+
+Using Ansible Vault for storing secrets (vault password is p@ssword):
+
+```
+ ansible-vault view encrypted-vars.yml
+ ansible-vault edit encrypted-vars.yml
+ ansible-playbook --sudo rt-server.yml --ask-vault-pass \
+   -i .vagrant/provisioners/ansible/inventory/vagrant_ansible_inventory \
+   --extra-vars "prompt_mysql_bind_address=127.0.0.1 prompt_rt_version=4.4.0 use_vault=true"
 ```

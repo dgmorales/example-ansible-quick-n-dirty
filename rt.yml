@@ -75,13 +75,14 @@
   - name: Set RT DB password fact to the one read from file
     no_log: true
     set_fact: rt_real_dbpass="{{ res_get_password.stdout }}"
-  when: rt_dbpass == "_RANDOM_GEN_"
+  when: not use_vault and rt_dbpass == "_RANDOM_GEN_"
   tags: rt-passwd-gen
 
 - name: Set RT DB password fact to the one given in the playbook
-  no_log: true
   set_fact: rt_real_dbpass="{{ rt_dbpass }}"
-  when: rt_dbpass != "_RANDOM_GEN_"
+  when: not use_vault and rt_dbpass != "_RANDOM_GEN_"
+  no_log: true
+  tags: rt-passwd-gen
 
 # Configure RT
 - name: Create RT_SiteConfig.pm

@@ -30,7 +30,7 @@ Set($LogToSyslog    , 'notice');
 Set($DatabaseType , 'mysql');
 Set($DatabasePort , '');
 Set($DatabaseUser , '{{ rt_dbuser }}');
-Set($DatabasePassword , '{{ rt_dbpass }}');
+Set($DatabasePassword , '{{ rt_real_dbpass }}');
 Set($DatabaseName , '{{ rt_dbname }}');
 Set($CanonicalizeRedirectURLs, 1);
 

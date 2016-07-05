@@ -1,3 +1,4 @@
+## Install Prereqs
 - name: Create RT installation dir
   file: path={{ rt_install_prefix }} state=directory mode=0755 owner=root group=root
 
@@ -20,6 +21,7 @@
     - { name: 'Encode', version: '2.64' }
     - { name: 'GD::Graph', version: '1.47' }
 
+## Install RT itself
 - name: Download and unpack RT
   unarchive:
     copy: no
@@ -45,6 +47,43 @@
     chdir: "{{ rt_source_unpacked_dir }}"
     creates: "{{ rt_install_prefix }}/etc"
 
+## Random password generation
+# Oh boy, this is ugly. Shame on me.
+- block:
+  - name: Stat password file
+    stat: path="{{ rt_generated_password_file }}"
+    register: res_gen_passwd_file
+
+  - name: Generate random password locally on control machine
+    when: not res_gen_passwd_file.stat.exists
+    local_action: command makepasswd -l 12
+    register: res_get_password
+
+  - name: Save generated password
+    when: not res_gen_passwd_file.stat.exists
+    copy:
+      content: "{{ res_get_password.stdout }}"
+      dest: "{{ rt_generated_password_file }}"
+      owner: root
+      mode: 0600
+
+  - name: Read password from file
+    command: cat {{ rt_generated_password_file }}
+    register: res_get_password
+    changed_when: False
+
+  - name: Set RT DB password fact to the one read from file
+    no_log: true
+    set_fact: rt_real_dbpass="{{ res_get_password.stdout }}"
+  when: rt_dbpass == "_RANDOM_GEN_"
+  tags: rt-passwd-gen
+
+- name: Set RT DB password fact to the one given in the playbook
+  no_log: true
+  set_fact: rt_real_dbpass="{{ rt_dbpass }}"
+  when: rt_dbpass != "_RANDOM_GEN_"
+
+# Configure RT
 - name: Create RT_SiteConfig.pm
   tags: rt-config
   template:
@@ -61,4 +100,7 @@
     creates: /var/lib/mysql/rt4
     chdir: "{{ rt_source_unpacked_dir }}"
 
+# TODO:
 # /etc/cron.d/rt4
+# plugins
+# mail gateway configuration

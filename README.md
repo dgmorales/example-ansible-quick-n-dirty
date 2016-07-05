@@ -14,6 +14,12 @@
  **Warning**: this ain't a complete or optimized BestPractical RT installation example. It's
   purpose is showcasing some ansible features/possibilities.
 
+# Requirements
+
+This assumes vagrant is installed in your machine. The VM is provisioned using the ansible
+provider just so it creates the inventory file we then use. So we can experience the example
+like it were "a real remote machine".
+
 # Interesting things to note in here
 
  - This playbook is meant to be used interactively. It prompts for some info (vars_propmpt).
@@ -35,6 +41,9 @@
    so we don't generate a new password in every run. THIS IS UGLY AS HELL. If I were to use this
    approach for real, we could at least make a custom python module to enable a cleaner code.
    But hey, use ansible vault or some lookup on a remote shared secret vault.
+
+*(BTW you might need to change the variable cmd_local_passwd_generator in rt.yml to something
+you have available in your host)*
 
 # Better ways
 

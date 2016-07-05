@@ -46,7 +46,7 @@
   args:
     chdir: "{{ rt_source_unpacked_dir }}"
     creates: "{{ rt_install_prefix }}/etc"
-
+  
 ## Random password generation
 # Oh boy, this is ugly. Shame on me.
 - block:
@@ -56,7 +56,7 @@
 
   - name: Generate random password locally on control machine
     when: not res_gen_passwd_file.stat.exists
-    local_action: command makepasswd -l 12
+    local_action: command {{ cmd_local_passwd_generator }}
     register: res_get_password
 
   - name: Save generated password

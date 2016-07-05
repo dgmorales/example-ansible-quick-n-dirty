@@ -33,7 +33,8 @@
     rt_dbname: rt4
     rt_fcgi_port: 9000
     rt_generated_password_file: "{{ rt_install_prefix }}/etc/.db_password"
-    use_vault: false
+    cmd_local_passwd_generator: makepasswd -l 12
+    use_vault: False
   pre_tasks:
     - name: apt-get update
       tags: apt-get-update
